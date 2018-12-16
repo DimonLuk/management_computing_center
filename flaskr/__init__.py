@@ -1,7 +1,8 @@
 import os
+from .apps._agregator import bp as _agregator
+from .apps.health_check import bp as health_check
+from .apps.graphql.graphql import bp as graphql
 from flask import Flask
-from .apps import health_check
-from .apps.graphql import graphql
 from .models import db, migrate
 
 
@@ -22,8 +23,10 @@ def create_app(test_mode=False, dev_mode=True, prod_mode=False):
         pass
     db.init_app(app)
     migrate.init_app(app, db)
-    app.register_blueprint(health_check.bp)
-    app.register_blueprint(graphql.bp)
+    app.register_blueprint(health_check)
+    app.register_blueprint(graphql)
+    if dev_mode:
+        app.register_blueprint(_agregator)
 
     @app.route('/basic_health_check')
     def basic_health_check():
