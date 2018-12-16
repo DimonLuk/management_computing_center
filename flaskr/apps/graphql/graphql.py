@@ -1,6 +1,7 @@
 import graphene
 from flaskr.models import get_db_session
 from flaskr.models.warranty import Warranty
+from flaskr.serializers.warranty_serializer import WarrantySerializer
 from flask import Blueprint, request
 import json
 import datetime
@@ -14,16 +15,9 @@ class Query(graphene.ObjectType):
 
     def resolve_warranty(self, info, id):
         with get_db_session() as session:
-            warranty = session.query(Warranty).get(id).__dict__
-            keys_to_pop = []
-            for key in warranty:
-                if key.startswith('_'):
-                    keys_to_pop.append(key)
-                if isinstance(warranty.get(key), datetime.date):
-                    warranty[key] = str(warranty.get(key))
-            for i in keys_to_pop:
-                warranty.pop(i, None)
-            return json.dumps(warranty)
+            warranty = session.query(Warranty).get(id)
+            result = WarrantySerializer(warranty).json
+            return result
 
 
 schema = graphene.Schema(query=Query)
