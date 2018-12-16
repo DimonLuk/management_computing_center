@@ -3,8 +3,6 @@ from flaskr.models import get_db_session
 from flaskr.models.warranty import Warranty
 from flaskr.serializers.warranty_serializer import WarrantySerializer
 from flask import Blueprint, request
-import json
-import datetime
 
 
 bp = Blueprint('graphql', __name__, url_prefix='/graphql')
@@ -15,8 +13,10 @@ class Query(graphene.ObjectType):
 
     def resolve_warranty(self, info, id):
         with get_db_session() as session:
+            result = None
             warranty = session.query(Warranty).get(id)
-            result = WarrantySerializer(warranty).json
+            if warranty:
+                result = WarrantySerializer(warranty).json
             return result
 
 
