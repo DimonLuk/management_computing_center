@@ -1,6 +1,7 @@
 import graphene
 from flaskr.models import get_db_session
 from flaskr.models.warranty import Warranty
+from flaskr.models.manufacturer import Manufacturer # NOQA
 from flaskr.serializers.warranty_serializer import WarrantySerializer
 from flask import Blueprint, request
 
