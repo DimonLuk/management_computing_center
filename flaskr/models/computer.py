@@ -18,8 +18,8 @@ class Computer(db.Model, DefaultMixin):
                                                  ondelete='CASCADE'))
     ram = relationship('ram_id', backref='computer')
 
-    processor = db.Column(db.Integer, db.ForeignKey('processor.id',
-                                                    ondelete='CASCADE'))
+    processor_id = db.Column(db.Integer, db.ForeignKey('processor.id',
+                                                       ondelete='CASCADE'))
     processor = relationship('processor', backref='computer')
 
     def __repr__(self):
