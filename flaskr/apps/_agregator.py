@@ -4,6 +4,9 @@ from flaskr.models.component_meta_info import ComponentMetaInfo # NOQA
 from flaskr.models.manufacturer import Manufacturer # NOQA
 from flaskr.models.trunk import Trunk # NOQA
 from flaskr.models.motherboard import Motherboard # NOQA
+from flaskr.models.computer import Computer # NOQA
+from flaskr.models.ram import Ram # NOQA
+from flaskr.models.processor import Processor # NOQA
 
 
 bp = Blueprint('_agregator', __name__, url_prefix='/_agregator')

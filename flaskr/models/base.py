@@ -1,6 +1,7 @@
-from . import db, get_db_session
+from . import db
+from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declared_attr
-from importlib import import_module
+# from importlib import import_module
 
 
 class DefaultMixin(object):
@@ -13,7 +14,6 @@ class DefaultMixin(object):
 
 
 class ComponentMixin(DefaultMixin):
-
     @declared_attr
     def component_meta_info_id(cls):
         return db.Column(
@@ -21,13 +21,9 @@ class ComponentMixin(DefaultMixin):
             db.ForeignKey('componentmetainfo.id', ondelete='CASCADE')
         )
 
-    @property
-    def info(self):
-        ComponentMetaInfo = import_module('flaskr.models.component_meta_info')\
-            .ComponentMetaInfo
-        with get_db_session() as session:
-            return session.query(ComponentMetaInfo)\
-                .get(self.component_meta_info_id)
+    @declared_attr
+    def component_meta_info(cls):
+        return relationship('ComponentMetaInfo', back_populates='component')
 
     @property
     def type(self):
