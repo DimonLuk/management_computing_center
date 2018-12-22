@@ -1,30 +1,49 @@
 import graphene
-from flaskr.models import get_db_session
+from graphene import relay
+from graphene_sqlalchemy import SQLAlchemyObjectType, SQLAlchemyConnectionField
 from flaskr.models.warranty import Warranty
-from flaskr.models.manufacturer import Manufacturer # NOQA
-from flaskr.serializers.warranty_serializer import WarrantySerializer
-from flask import Blueprint, request
+from flaskr.models.trunk import Trunk
 
 
-bp = Blueprint('graphql', __name__, url_prefix='/graphql')
+class DefaultObjectType(SQLAlchemyObjectType):
+    class Meta:
+        abstract = True
+
+    @classmethod
+    def get_node(cls, info, id):
+        return cls.get_query(info).filter(
+            cls._meta.model.id==id
+        ).first()
+
+
+class WarrantyType(DefaultObjectType):
+    class Meta:
+        model = Warranty
+
+
+class TrunkType(DefaultObjectType):
+    class Meta:
+        model = Trunk
 
 
 class Query(graphene.ObjectType):
-    warranty = graphene.JSONString(id=graphene.Int())
+    warranties = graphene.List(lambda: WarrantyType, id=graphene.Int())
 
-    def resolve_warranty(self, info, id):
-        with get_db_session() as session:
-            result = None
-            warranty = session.query(Warranty).get(id)
-            if warranty:
-                result = WarrantySerializer(warranty).json
-            return result
+    def resolve_warranties(self, info, *args, **kwargs):
+        query = WarrantyType.get_query(info)
+        if kwargs:
+            for key, value in kwargs.items():
+                query = query.filter(getattr(Warranty, key) == value).all()
+        return query
+
+    trunks = graphene.List(lambda: TrunkType, id=graphene.Int())
+
+    def resolve_trunks(self, info, *args, **kwargs):
+        query = TrunkType.get_query(info)
+        if kwargs:
+            for key, value in kwargs.items():
+                query = query.filter(getattr(Trunk, key) == value).all()
+        return query
 
 
 schema = graphene.Schema(query=Query)
-
-
-@bp.route('/query', methods=('POST',))
-def process_query():
-    result = schema.execute(request.data.decode('utf-8').replace('\'', ''))
-    return result.data.get('warranty')
