@@ -12,15 +12,15 @@ class Computer(db.Model, DefaultMixin):
 
     motherboard_id = db.Column(db.Integer, db.ForeignKey('motherboard.id',
                                                          ondelete='CASCADE'))
-    motherboard = relationship('motherboard', backref='computer')
+    motherboard = relationship('Motherboard', backref='computer')
 
     ram_id = db.Column(db.Integer, db.ForeignKey('ram.id',
                                                  ondelete='CASCADE'))
-    ram = relationship('ram_id', backref='computer')
+    ram = relationship('Ram', backref='computer')
 
     processor_id = db.Column(db.Integer, db.ForeignKey('processor.id',
                                                        ondelete='CASCADE'))
-    processor = relationship('processor', backref='computer')
+    processor = relationship('Processor', backref='computer')
 
     def __repr__(self):
         return '<Computer computer id="{}" room="{}">'.format(
