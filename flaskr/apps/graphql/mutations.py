@@ -9,20 +9,23 @@ def make_create_input_cls(name, attribute):
 
 def make_create_cls(name, model, typ, attribute, create_input_cls,
                     general_name):
+    result_cls = None
+
     def general_mutate(self, info, input):
         result = None
         with get_db_session() as session:
             result = model(**input)
             session.add(result)
-        return result
+        return result_cls(**{'{}'.format(general_name): result})
     arguments = type('Arguments', tuple(), {
         'input': create_input_cls(required=True)
     })
-    return type(name, (graphene.Mutation,), {
+    result_cls = type(name, (graphene.Mutation,), {
         '{}'.format(general_name): graphene.Field(lambda: typ),
         'Arguments': arguments,
         'mutate': general_mutate
     })
+    return result_cls
 
 
 def make_update_input_cls(name, attribute):
@@ -33,6 +36,8 @@ def make_update_input_cls(name, attribute):
 
 def make_update_cls(name, model, typ, attribute, update_input_cls,
                     general_name):
+    result_cls = None
+
     def general_mutate(self, info, input):
         result = None
         with get_db_session() as session:
@@ -40,15 +45,16 @@ def make_update_cls(name, model, typ, attribute, update_input_cls,
             for key, value in input.items():
                 if key != 'id':
                     setattr(result, key, value)
-        return result
+        return result_cls(**{'{}'.format(general_name): result})
     arguments = type('Arguments', tuple(), {
         'input': update_input_cls(required=True)
     })
-    return type(name, (graphene.Mutation,), {
+    result_cls = type(name, (graphene.Mutation,), {
         '{}'.format(general_name): graphene.Field(lambda: typ),
         'Arguments': arguments,
         'mutate': general_mutate
     })
+    return result_cls
 
 
 def make_delete_input_cls(name, attribute):
@@ -59,18 +65,22 @@ def make_delete_input_cls(name, attribute):
 
 def make_delete_cls(name, model, typ, attribute, delete_input_cls,
                     general_name):
+    result_cls = None
+
     def general_mutate(self, info, input):
         with get_db_session() as session:
+            result = session.query(model).get(input.get('id'))
             session.query(model).filter(model.id == input.get('id')).delete()
-        return None
+        return result_cls(**{'{}'.format(general_name): result})
     arguments = type('Arguments', tuple(), {
         'input': delete_input_cls(required=True)
     })
-    return type(name, (graphene.Mutation,), {
+    result_cls = type(name, (graphene.Mutation,), {
         '{}'.format(general_name): graphene.Field(lambda: typ),
         'Arguments': arguments,
         'mutate': general_mutate
     })
+    return result_cls
 
 
 class MetaMutation(type(graphene.ObjectType)):
