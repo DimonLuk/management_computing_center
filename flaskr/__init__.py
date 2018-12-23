@@ -5,7 +5,7 @@ from .apps.health_check import bp as health_check
 from .schemas import marshmallow
 from flask import Flask
 from .models import db, migrate
-from .apps.graphql.graphql import schema
+from .apps.graphql import schema
 from flask_graphql import GraphQLView
 
 
