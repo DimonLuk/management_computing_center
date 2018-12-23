@@ -1,15 +1,14 @@
-from . import Base
-from sqlalchemy import Column, Integer, Date
+from sqlalchemy.orm import relationship
+from . import db
+from .base import DefaultMixin
 
 
-class Warranty(Base):
-    __tablename__ = 'warranty'
-
-    id = Column(Integer, primary_key=True)
-    start_date = Column(Date, nullable=False)
-    end_date = Column(Date, nullable=False)
+class Warranty(db.Model, DefaultMixin):
+    start_date = db.Column(db.Date, nullable=False)
+    end_date = db.Column(db.Date, nullable=False)
+    components = relationship('ComponentMetaInfo', back_populates='warranty')
 
     def __repr__(self):
-        return 'Warranty from {} to {}'.format(
-            self.start_date, self.end_date
+        return '<Warranty object id="{}" from="{}" to="{}">'.format(
+            self.id, self.start_date, self.end_date
         )
