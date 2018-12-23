@@ -23,8 +23,8 @@ class ComponentMixin(DefaultMixin):
 
     @declared_attr
     def component_meta_info(cls):
-        return relationship('ComponentMetaInfo', backref='{}'
-                            .format(cls.__name__))
+        return relationship('ComponentMetaInfo', uselist=False,
+                            backref='{}'.format(cls.__name__.lower()))
 
     def __repr__(self):
         return '<{} object>'.format(self.__tablename__)
