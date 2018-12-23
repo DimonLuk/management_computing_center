@@ -7,7 +7,8 @@ def create_name(outer_model):
 
 
 def create_value(outer_type):
-    return graphene.List(lambda: outer_type, id=graphene.Int())
+    return graphene.List(lambda: outer_type, id=graphene.Int(),
+                         last=graphene.Boolean())
 
 
 def create_resolver_name(outer_name):
@@ -18,9 +19,14 @@ def create_resolver(outer_type, outer_model):
 
     def resolver(self, info, *args, **kwargs):
         query = outer_type.get_query(info)
+        skip_fields = ('last',)
         if kwargs:
+            if kwargs.get('last'):
+                query = query.order_by(outer_model.id.desc()).first()
+                return [query]
             for key, val in kwargs.items():
-                query = query.filter(getattr(outer_model, key) == val)
+                if key not in skip_fields:
+                    query = query.filter(getattr(outer_model, key) == val)
         return query
     return resolver
 

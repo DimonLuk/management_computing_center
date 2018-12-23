@@ -36,7 +36,7 @@ class MotherboardAttribute(DefaultComponentAttributeMixin):
 
 
 class ProcessorAttribute(DefaultComponentAttributeMixin):
-    cors = graphene.Int()
+    cores = graphene.Int()
     l1_cache = graphene.Int()
     l2_cache = graphene.Int()
     l3_cache = graphene.Int()
