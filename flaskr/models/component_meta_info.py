@@ -14,6 +14,8 @@ class ComponentMetaInfo(db.Model, DefaultMixin):
                                                       ondelete='CASCADE'))
     warranty = relationship('Warranty', back_populates='components')
 
+    status = db.Column(db.String(15), nullable=True)
+
     def __repr__(self):
         return '<ComponentMetaInfo object serial_number="{}">'.format(
             self.serial_number
