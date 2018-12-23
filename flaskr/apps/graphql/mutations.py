@@ -51,6 +51,28 @@ def make_update_cls(name, model, typ, attribute, update_input_cls,
     })
 
 
+def make_delete_input_cls(name, attribute):
+    return type(name, (graphene.InputObjectType, attribute), {
+        'id': graphene.Int()
+    })
+
+
+def make_delete_cls(name, model, typ, attribute, delete_input_cls,
+                    general_name):
+    def general_mutate(self, info, input):
+        with get_db_session() as session:
+            session.query(model).filter(model.id == input.get('id')).delete()
+        return None
+    arguments = type('Arguments', tuple(), {
+        'input': delete_input_cls(required=True)
+    })
+    return type(name, (graphene.Mutation,), {
+        '{}'.format(general_name): graphene.Field(lambda: typ),
+        'Arguments': arguments,
+        'mutate': general_mutate
+    })
+
+
 class MetaMutation(type(graphene.ObjectType)):
     def __new__(cls, name, bases, dict_):
         for obj in FIELDS_TO_RETRIEVE:
@@ -80,10 +102,22 @@ class MetaMutation(type(graphene.ObjectType)):
             update_cls = make_update_cls(update_name, model, typ, attribute,
                                          update_input_cls, name)
 
+            # DeleteModelInput
+            delete_input_name = 'Delete{}Input'.format(model.__name__)
+            delete_input_cls = make_delete_input_cls(delete_input_name,
+                                                     attribute)
+
+            # DeleteModel
+            delete_name = 'Delete{}'.format(model.__name__)
+            delete_cls = make_delete_cls(delete_name, model, typ, attribute,
+                                         delete_input_cls, name)
+
             self_create_name = 'create_{}'.format(name)
             self_update_name = 'update_{}'.format(name)
+            self_delete_name = 'delete_{}'.format(name)
             dict_[self_create_name] = create_cls.Field()
             dict_[self_update_name] = update_cls.Field()
+            dict_[self_delete_name] = delete_cls.Field()
         return super(MetaMutation, cls).__new__(cls, name, bases, dict_)
 
 
