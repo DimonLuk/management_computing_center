@@ -8,6 +8,7 @@ class Manufacturer(db.Model, DefaultMixin):
     address = db.Column(db.String(500), nullable=False)
     components = relationship('ComponentMetaInfo',
                               back_populates='manufacturer')
+    phone_number = db.Column(db.String(13), nullable=True)
 
     def __repr__(self):
         return '<Manufacturer object id="{}" title="{}">'.format(

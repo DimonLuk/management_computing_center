@@ -11,7 +11,7 @@ from flask_graphql import GraphQLView
 
 def create_app(test_mode=False, dev_mode=True, prod_mode=False):
     app = Flask(__name__, instance_relative_config=True)
-    connection = 'sqlite:///models/dev_db.sql'
+    connection = 'postgresql+psycopg2://postgres@localhost/course_db'
     app.config.from_mapping(
         SECRET_KEY='dev',
         DATABASE=connection,
