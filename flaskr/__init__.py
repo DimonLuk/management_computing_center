@@ -7,10 +7,12 @@ from flask import Flask
 from .models import db, migrate
 from .apps.graphql import schema
 from flask_graphql import GraphQLView
+from flask_cors import CORS
 
 
 def create_app(test_mode=False, dev_mode=True, prod_mode=False):
     app = Flask(__name__, instance_relative_config=True)
+    CORS(app)
     connection = 'postgresql+psycopg2://postgres@localhost/course_db'
     app.config.from_mapping(
         SECRET_KEY='dev',
