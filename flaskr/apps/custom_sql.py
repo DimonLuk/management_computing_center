@@ -16,7 +16,7 @@ def process_sql():
             for row in query_result.fetchall():
                 obj = {}
                 for key_index in range(len(column_names)):
-                    obj[column_names[key_index]] = row[key_index]
+                    obj[column_names[key_index]] = str(row[key_index])
                 column_values.append(obj)
             response = {
                 'column_names': column_names,
