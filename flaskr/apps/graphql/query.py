@@ -2,6 +2,7 @@ import graphene
 from .utils import FIELDS_TO_RETRIEVE
 from sqlalchemy import and_
 from flaskr.models.component_meta_info import ComponentMetaInfo
+from flaskr.models.computer import Computer
 from flaskr.models import get_db_session
 
 
@@ -12,7 +13,8 @@ def create_name(outer_model):
 def create_value(outer_type):
     return graphene.List(lambda: outer_type, id=graphene.Int(),
                          last=graphene.Boolean(),
-                         status=graphene.String())
+                         status=graphene.String(),
+                         unused=graphene.Boolean())
 
 
 def create_resolver_name(outer_name):
@@ -33,6 +35,7 @@ def create_resolver(outer_type, outer_model):
                 for key, val in kwargs.items():
                     if key == 'status':
                         if getattr(outer_model, 'component_meta_info', None):
+                            import pudb; pudb.set_trace() # NOQA
                             query = query.join(
                                 ComponentMetaInfo,
                                 and_(
@@ -40,6 +43,18 @@ def create_resolver(outer_type, outer_model):
                                     ComponentMetaInfo.id,
                                     ComponentMetaInfo.status == val
                                 )
+                            )
+                    if key == 'unused':
+                        with get_db_session() as session2:
+                            subquery = session2.query(
+                                getattr(Computer,
+                                        '{}_id'.format(
+                                            outer_model.__name__.lower()
+                                        ),
+                                        None)
+                            )
+                            query = query.filter(
+                                ~outer_model.id.in_(subquery)
                             )
                     if key not in skip_fields and \
                             key not in special_filters and \
