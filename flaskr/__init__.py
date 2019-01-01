@@ -6,11 +6,14 @@ from .schemas import marshmallow
 from flask import Flask
 from .models import db, migrate
 from .apps.graphql import schema
+from .apps.custom_sql import bp as custom_sql
 from flask_graphql import GraphQLView
+from flask_cors import CORS
 
 
 def create_app(test_mode=False, dev_mode=True, prod_mode=False):
     app = Flask(__name__, instance_relative_config=True)
+    CORS(app)
     connection = 'postgresql+psycopg2://postgres@localhost/course_db'
     app.config.from_mapping(
         SECRET_KEY='dev',
@@ -28,6 +31,7 @@ def create_app(test_mode=False, dev_mode=True, prod_mode=False):
     migrate.init_app(app, db)
     marshmallow.init_app(marshmallow)
     app.register_blueprint(health_check)
+    app.register_blueprint(custom_sql)
     # app.register_blueprint(graphql)
     app.add_url_rule(
         '/graphql',
