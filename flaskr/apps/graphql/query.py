@@ -44,7 +44,7 @@ def create_resolver(outer_type, outer_model):
                                     ComponentMetaInfo.status == val
                                 )
                             )
-                    if key == 'unused':
+                    if key == 'unused' and val:
                         with get_db_session() as session2:
                             subquery = session2.query(
                                 getattr(Computer,
