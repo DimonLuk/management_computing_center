@@ -35,7 +35,6 @@ def create_resolver(outer_type, outer_model):
                 for key, val in kwargs.items():
                     if key == 'status':
                         if getattr(outer_model, 'component_meta_info', None):
-                            import pudb; pudb.set_trace() # NOQA
                             query = query.join(
                                 ComponentMetaInfo,
                                 and_(
